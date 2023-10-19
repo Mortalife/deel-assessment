@@ -31,4 +31,31 @@ describe("app", () => {
 
     expect(output.status).toBe(404);
   });
+
+  it("it should return the contract if it belongs to the user", async () => {
+    /**
+     * 5 belongs to 3/8
+     */
+    const output = await fetch(getUrl("/contracts/5"), {
+      headers: {
+        profile_id: "3",
+      },
+    });
+
+    expect(output.status).toBe(200);
+  });
+
+  it("it should return all the contracts that belong to the user", async () => {
+    /**
+     * 5 belongs to 3/8
+     */
+    const output = await fetch(getUrl("/contracts"), {
+      headers: {
+        profile_id: "3",
+      },
+    });
+
+    expect(output.status).toBe(200);
+    expect((await output.json()).length).toBe(2);
+  });
 });

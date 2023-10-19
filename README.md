@@ -1,3 +1,26 @@
+# Candidate
+Started: 11:16
+
+Paused at: 13:26 (50 minutes remaining)
+
+Restarted at: 14:53 (End due at 15:43)
+
+End:15:42 
+
+I did not get around to doing the last task, likewise, I cut test coverage on the last couple to get a little further in the task.
+
+Node Version used: 18.17.0
+
+> Run tests: `npm run test`
+
+Database is re-seeded every test, tests run on the assumption that the seed data is as it is in this repo, I added id fields to the `Job` seeds to make targeting a specific job in tests easier.
+
+## Timings
+
+**You can see all my timings within my git history which I kept up to date throughout this test**
+
+> Run `git log`
+
 # DEEL BACKEND TASK
 
 💫 Welcome! 🎉
@@ -98,9 +121,3 @@ When you have finished the assignment, zip your repo (make sure to include .git 
 Thank you and good luck! 🙏
 
 
-Started: 11:16
-
-Paused at: 13:26 (50 minutes remaining)
-
-Restarted at: 14:53 (End due at 15:43)
-End: 

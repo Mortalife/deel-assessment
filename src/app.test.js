@@ -189,4 +189,23 @@ describe("app", () => {
     expect(afterClient.balance).toBe(1150 - 201);
     expect(afterContractor.balance).toBe(1214 + 201);
   });
+
+  //Rapid fire (should probably be tests for non-compliance)
+  it("it should deposit money into the the the balance of a client, a client can't deposit more than 25% his total of jobs to pay. (at the deposit moment)", async () => {
+    const output = await fetch(getUrl("/balances/deposit/1"), {
+      method: "POST",
+      body: JSON.stringify({
+        amount: 10,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    //From 1 -> 6
+
+    expect(output.status).toBe(200);
+    const body = await output.json();
+    expect(body.balance).toBe(1150 + 10);
+  });
 });

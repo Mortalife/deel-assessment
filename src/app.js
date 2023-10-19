@@ -174,4 +174,80 @@ app.post("/jobs/:job_id/pay", getProfile, isClient, async (req, res) => {
   res.json(newJob);
 });
 
+/**
+ * @returns Deposits money into the the the balance of a client, a client can't deposit more than 25% his total of jobs to pay. (at the deposit moment)
+ */
+app.post("/balances/deposit/:userId", async (req, res) => {
+  const { Job, Contract, Profile } = req.app.get("models");
+  const { userId } = req.params;
+  const { amount } = req.body;
+
+  if (typeof amount === "undefined" || typeof amount !== "number")
+    return res.status(400).end();
+  if (amount === 0) return res.status(204).end(); //no content
+
+  // Refresh the balance of the client
+  const client = await Profile.findOne({
+    where: { id: userId, type: "client" },
+  });
+
+  if (!client) return res.status(404).end();
+
+  const jobs = await Job.findAll({
+    include: {
+      model: Contract,
+      as: "Contract",
+      required: true,
+      where: {
+        status: "in_progress",
+        ClientId: client.id,
+      },
+    },
+    where: {
+      paid: {
+        [Op.not]: true,
+      },
+    },
+  });
+
+  if (!jobs) return res.status(404).end();
+
+  const outstandingTotal = jobs.reduce((total, job) => total + job.price, 0);
+
+  if (outstandingTotal === 0) {
+    return res.status(403).end();
+  }
+
+  const twentyFivePercentAllowance = outstandingTotal * 0.25;
+
+  if (amount > twentyFivePercentAllowance) {
+    return res.status(403).end();
+  }
+
+  const t = await sequelize.transaction();
+
+  try {
+    await Profile.update(
+      {
+        balance: client.balance + amount,
+      },
+      {
+        where: { id: client.id },
+        transaction: t,
+      }
+    ),
+      await t.commit();
+  } catch (error) {
+    console.log(error);
+    await t.rollback();
+    return res.status(400).end();
+  }
+  // Refresh the balance of the client
+  const newClient = await Profile.findOne({
+    where: { id: userId, type: "client" },
+  });
+
+  res.json(newClient);
+});
+
 module.exports = app;

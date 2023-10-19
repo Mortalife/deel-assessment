@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from "vitest";
 import app from "./app";
 import { seed } from "../db/seed";
+import { sequelize } from "./model";
 
 const URL = process.env.DEV_URL || "http://localhost:3001";
 
@@ -171,6 +172,7 @@ describe("app", () => {
   });
 
   it("it should move the client's balance to the contractor balance.", async () => {
+    const { Profile } = sequelize.models;
     const output = await fetch(getUrl("/jobs/2/pay"), {
       method: "POST",
       headers: {
@@ -178,19 +180,13 @@ describe("app", () => {
       },
     });
 
-    expect(output.status).toBe(200);
-    const data = await output.json();
-    expect(data.length).toBe(0);
+    //From 1 -> 6
 
-    /**
-     *     Profile.create({
-            id: 6,
-            firstName: "Linus",
-            lastName: "Torvalds",
-            profession: "Programmer",
-            balance: 1214,
-            type: "contractor",
-            }),
-     */
+    expect(output.status).toBe(200);
+    const afterClient = await Profile.findByPk(1);
+    const afterContractor = await Profile.findByPk(6);
+
+    expect(afterClient.balance).toBe(1150 - 201);
+    expect(afterContractor.balance).toBe(1214 + 201);
   });
 });

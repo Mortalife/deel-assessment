@@ -100,7 +100,7 @@ Thank you and good luck! 🙏
 
 Started: 11:16
 
-Paused at: 13:16 (1 hour remaining)
+Paused at: 13:26 (50 minutes remaining)
 
-Restarted at:
+Restarted at: 14:53 (End due at 15:43)
 End: 

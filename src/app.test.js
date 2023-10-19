@@ -70,4 +70,51 @@ describe("app", () => {
     const data = await output.json();
     expect(data.some((c) => c.status === "terminated")).toBe(false);
   });
+
+  it("it should return all the unpaid jobs that belong to a user that are active", async () => {
+    /**
+     * 1 has a terminated contract
+     */
+    const output = await fetch(getUrl("/jobs/unpaid"), {
+      headers: {
+        profile_id: "1",
+      },
+    });
+
+    expect(output.status).toBe(200);
+    const data = await output.json();
+    expect(data.length).toBe(1);
+    expect(data[0].paid).toBeFalsy();
+  });
+
+  it("it should return all the unpaid jobs that belong to a user that are on active contracts", async () => {
+    /**
+     * 1 has a terminated contract
+     */
+    const output = await fetch(getUrl("/jobs/unpaid"), {
+      headers: {
+        profile_id: "1",
+      },
+    });
+
+    expect(output.status).toBe(200);
+    const data = await output.json();
+    expect(data.length).toBe(1);
+    expect(data[0].paid).toBeFalsy();
+  });
+
+  it("it should not return any unpaid jobs for a terminated contract", async () => {
+    /**
+     * Contract 1 has been terminated contract, owned by 5, 5 performed 1 job and it's marked unpaid
+     */
+    const output = await fetch(getUrl("/jobs/unpaid"), {
+      headers: {
+        profile_id: "5",
+      },
+    });
+
+    expect(output.status).toBe(200);
+    const data = await output.json();
+    expect(data.length).toBe(0);
+  });
 });

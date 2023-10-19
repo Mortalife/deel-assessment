@@ -8,14 +8,15 @@ function getUrl(path) {
 }
 
 describe("app", () => {
+  let server;
   beforeAll(() => {
-    app.listen(3001, () => {
+    server = app.listen(3001, () => {
       console.log("Express App Listening on Port 3001");
     });
   });
 
   afterAll(() => {
-    app.close();
+    server.close();
   });
 
   it("it should not return the contract if it doesn't belong to the user", async () => {
@@ -24,7 +25,7 @@ describe("app", () => {
      */
     const output = await fetch(getUrl("/contracts/5"), {
       headers: {
-        profile_id: "3",
+        profile_id: "5",
       },
     });
 

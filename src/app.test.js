@@ -1,5 +1,6 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { describe, it, expect, beforeAll, afterAll, beforeEach } from "vitest";
 import app from "./app";
+import { seed } from "../db/seed";
 
 const URL = process.env.DEV_URL || "http://localhost:3001";
 
@@ -13,6 +14,10 @@ describe("app", () => {
     server = app.listen(3001, () => {
       console.log("Express App Listening on Port 3001");
     });
+  });
+
+  beforeEach(async () => {
+    await seed();
   });
 
   afterAll(() => {
@@ -116,5 +121,76 @@ describe("app", () => {
     expect(output.status).toBe(200);
     const data = await output.json();
     expect(data.length).toBe(0);
+  });
+
+  it("it should not allow a contractor to pay for a job", async () => {
+    const output = await fetch(getUrl("/jobs/2/pay"), {
+      method: "POST",
+      headers: {
+        profile_id: "6",
+      },
+    });
+
+    expect(output.status).toBe(401);
+  });
+
+  it("it should not allow a client to pay for a job they do not own", async () => {
+    const output = await fetch(getUrl("/jobs/2/pay"), {
+      method: "POST",
+      headers: {
+        profile_id: "2", //owned by 1
+      },
+    });
+
+    expect(output.status).toBe(404);
+  });
+
+  it("it should pay for a job, a client can only pay if his balance >= the amount to pay.", async () => {
+    const output = await fetch(getUrl("/jobs/2/pay"), {
+      method: "POST",
+      headers: {
+        profile_id: "1",
+      },
+    });
+
+    expect(output.status).toBe(200);
+    const data = await output.json();
+    expect(data.id).toBe(2);
+    expect(data.paid).toBe(true);
+  });
+
+  it("it should not pay for a job if the client doesn't have enough balance", async () => {
+    const output = await fetch(getUrl("/jobs/15/pay"), {
+      method: "POST",
+      headers: {
+        profile_id: "4",
+      },
+    });
+
+    expect(output.status).toBe(402);
+  });
+
+  it("it should move the client's balance to the contractor balance.", async () => {
+    const output = await fetch(getUrl("/jobs/2/pay"), {
+      method: "POST",
+      headers: {
+        profile_id: "1",
+      },
+    });
+
+    expect(output.status).toBe(200);
+    const data = await output.json();
+    expect(data.length).toBe(0);
+
+    /**
+     *     Profile.create({
+            id: 6,
+            firstName: "Linus",
+            lastName: "Torvalds",
+            profession: "Programmer",
+            balance: 1214,
+            type: "contractor",
+            }),
+     */
   });
 });

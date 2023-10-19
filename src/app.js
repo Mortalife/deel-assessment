@@ -250,4 +250,36 @@ app.post("/balances/deposit/:userId", async (req, res) => {
   res.json(newClient);
 });
 
+/**
+ * @returns   Returns the profession that earned the most money (sum of jobs paid) for any contactor that worked in the query time range.
+ */
+app.get("/admin/best-profession", async (req, res) => {
+  const { start, end } = req.query;
+
+  if (!start || !end) return res.status(400).end();
+
+  const [results] = await sequelize.query(
+    `SELECT SUM(price) as total, profiles.profession as profession 
+        FROM jobs 
+        LEFT JOIN contracts ON jobs.ContractId = contracts.id 
+        LEFT JOIN profiles ON contracts.ContractorId = profiles.id 
+        WHERE paid = true AND jobs.paymentDate BETWEEN :start AND :end 
+        GROUP BY profiles.profession 
+        ORDER BY total DESC LIMIT 1`,
+    {
+      replacements: {
+        start: new Date(start),
+        end: new Date(end),
+      },
+    }
+  );
+
+  if (!results.length)
+    return res.json({
+      profession: null,
+    });
+
+  res.json(results[0]);
+});
+
 module.exports = app;

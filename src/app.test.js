@@ -208,4 +208,14 @@ describe("app", () => {
     const body = await output.json();
     expect(body.balance).toBe(1150 + 10);
   });
+
+  it("it should returns the profession that earned the most money (sum of jobs paid) for any contactor that worked in the query time range.", async () => {
+    const output = await fetch(
+      getUrl("/admin/best-profession?start=2020-08-15&end=2020-08-17")
+    );
+
+    expect(output.status).toBe(200);
+    const body = await output.json();
+    expect(body.profession).toBe("Programmer");
+  });
 });

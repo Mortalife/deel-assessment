@@ -32,6 +32,9 @@ app.get("/contracts", getProfile, async (req, res) => {
   const contract = await Contract.findAll({
     where: {
       [Op.or]: [{ ClientId: req.profile.id }, { ContractorId: req.profile.id }],
+      status: {
+        [Op.not]: "terminated",
+      },
     },
   });
   if (!contract) return res.status(404).end();

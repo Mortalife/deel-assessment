@@ -46,9 +46,6 @@ describe("app", () => {
   });
 
   it("it should return all the contracts that belong to the user", async () => {
-    /**
-     * 5 belongs to 3/8
-     */
     const output = await fetch(getUrl("/contracts"), {
       headers: {
         profile_id: "3",
@@ -57,5 +54,20 @@ describe("app", () => {
 
     expect(output.status).toBe(200);
     expect((await output.json()).length).toBe(2);
+  });
+
+  it("it should return all the contracts that belong to the user that aren't terminated", async () => {
+    /**
+     * 1 has a terminated contract
+     */
+    const output = await fetch(getUrl("/contracts"), {
+      headers: {
+        profile_id: "1",
+      },
+    });
+
+    expect(output.status).toBe(200);
+    const data = await output.json();
+    expect(data.some((c) => c.status === "terminated")).toBe(false);
   });
 });
